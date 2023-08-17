@@ -4,44 +4,44 @@ void ProgrammableThing::begin()
 {
   server.addHandler(new LogWebHandler());
 
+  Debug::log("Applying endpoints");
+  endpoints(&server);
+
+  if (options->endpoints != nullptr)
+  {
+    Debug::log("Applying custom endpoints");
+    options->endpoints(&server);
+  }
+
   if (options->wifi != nullptr)
   {
-    Serial.println("Starting captive portal...");
+    Debug::log("Starting captive portal...");
 
     WiFi.mode(WIFI_AP);
     WiFi.softAP(options->wifi->ssid, options->wifi->passphrase, 1, 0, 8);
 
     String selfIp = WiFi.softAPIP().toString();
-    Serial.println("WiFi: " + selfIp);
+    Debug::log("WiFi: " + selfIp);
 
     dnsServer.start(53, "*", WiFi.softAPIP());
-    Serial.println("DNS: " + selfIp + "53");
+    Debug::log("DNS: " + selfIp + ":53");
 
     server.addHandler(new CaptiveWebHandler(selfIp));
-    Serial.println("HTTP: " + selfIp + "80");
+    Debug::log("HTTP: " + selfIp + ":80");
   }
 
-  if (options->endpoints != nullptr)
-  {
-    Serial.println("Customising endpoints");
-    options->endpoints(&server);
-  }
-
-  Serial.println("Starting engine");
+  Debug::log("Starting engine");
   engine.begin();
 
   if (options->fs != nullptr)
   {
-    Serial.println("Serving SPIFFS HTML");
+    Debug::log("Serving SPIFFS directory");
     server.serveStatic("/", *options->fs, "/").setDefaultFile("index.html").setCacheControl("max-age=600");
   }
 
   server.addHandler(new FallbackWebHandler());
   server.begin();
-  Serial.println("Started");
-
-  // TEST...
-  auto value = engine.exec("console.log('hello, world!')");
+  Debug::log("Started");
 }
 
 void ProgrammableThing::loop()
@@ -52,8 +52,6 @@ void ProgrammableThing::loop()
   }
 
   engine.loop();
-
-  // js engine tick?
 }
 
 void ProgrammableThing::end()
@@ -66,6 +64,10 @@ void ProgrammableThing::end()
     dnsServer.stop();
     WiFi.disconnect(true);
   }
+}
 
-  // stop js engine?
+void ProgrammableThing::endpoints(AsyncWebServer *server)
+{
+  server->on("/programs/", HTTP_GET, [](AsyncWebServerRequest *request)
+             { return request->send(200, "application/json", String() + "{\"msg\":\"ok\"}"); });
 }

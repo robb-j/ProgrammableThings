@@ -20,6 +20,7 @@
 #include "handlers/LogWebHandler.h"
 #include "handlers/FallbackWebHandler.h"
 #include "ProgramEngine.h"
+#include "Debug.h"
 
 typedef void(EndpointsCallback)(AsyncWebServer *server);
 typedef void(RuntimeCallback)(JSRuntime *runtime, JSContext *context);
@@ -56,4 +57,6 @@ public:
   void begin();
   void loop();
   void end();
+
+  void endpoints(AsyncWebServer *server);
 };

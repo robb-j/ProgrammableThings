@@ -1,5 +1,7 @@
 #pragma once
 
+#include "quickjs/quickjs.h"
+
 #include "ProgrammableThing.h"
 #include "ProgramEngine.h"
 #include "ProgramEngine.h"
