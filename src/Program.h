@@ -11,6 +11,7 @@ class Program
   ProgramScheduler scheduler;
   const char *source;
   const char *filename;
+  uint32_t executionStart = 0;
 
   //
   // JS
@@ -39,7 +40,7 @@ class Program
     auto program = static_cast<Program *>(JS_GetContextOpaque(ctx));
     uint32_t timeout;
     JS_ToUint32(ctx, &timeout, argv[1]);
-    auto id = program->scheduler.add(argv[1], millis() + timeout, -1, jsThis);
+    auto id = program->scheduler.add(argv[0], millis() + timeout, -1, jsThis);
     return JS_NewUint32(ctx, id);
   }
   static JSValue js_clear_timeout(JSContext *ctx, JSValueConst jsThis, int argc, JSValueConst *argv)
@@ -51,14 +52,13 @@ class Program
     auto program = static_cast<Program *>(JS_GetContextOpaque(ctx));
     uint32_t id;
     JS_ToUint32(ctx, &id, argv[0]);
-    program->scheduler.clear(ctx, id);
+    program->scheduler.clear(id);
     return JS_UNDEFINED;
   }
   // static JSValue js_set_interval(JSContext *ctx, JSValueConst jsThis, int argc, JSValueConst *argv) {}
   // static JSValue js_clear_interval(JSContext *ctx, JSValueConst jsThis, int argc, JSValueConst *argv) {}
   // static JSValue js_request_animation_frame(JSContext *ctx, JSValueConst jsThis, int argc, JSValueConst *argv) {}
   // static JSValue js_cancel_animation_frame(JSContext *ctx, JSValueConst jsThis, int argc, JSValueConst *argv) {}
-
   static JSValue js_date_now(JSContext *ctx, JSValueConst jsThis, int argc, JSValueConst *argv)
   {
     return JS_NewUint32(ctx, millis());
@@ -104,8 +104,15 @@ class Program
   }
 
 public:
-  Program(JSRuntime *rt, JSContext *ctx, const char *source, const char *filename) : rt(rt), ctx(ctx), source(source), filename(filename) {}
+  Program(JSRuntime *rt, JSContext *ctx, const char *source, const char *filename) : rt(rt), ctx(ctx), source(source), filename(filename), scheduler(ctx) {}
   virtual ~Program() {}
+
+  uint32_t getExecutionStart() { return executionStart; }
+
+  // void setInterruptCount(uint32_t v) { interruptCount = v; }
+  // uint32_t getInterruptCount() { return interruptCount; }
+  // void incrementInterruptCount() { interruptCount++; }
+  // void resetInterruptCount() { interruptCount = 0; }
 
   void begin()
   {
@@ -132,21 +139,24 @@ public:
                       JS_NewCFunction(ctx, js_date_now, "now", 0));
 
     Debug::log("- running script");
+    executionStart = millis();
     JS_Eval(ctx, source, strlen(source), filename, JS_EVAL_TYPE_MODULE);
   }
   void loop()
   {
     // Debug::log("Program#tick");
-    scheduler.tick(ctx, millis());
+    executionStart = millis();
+    scheduler.tick(executionStart);
   }
   void end()
   {
     Debug::log("Program#end");
-    scheduler.clearAll(ctx);
+    scheduler.clearAll();
+    JS_FreeContext(ctx);
   }
 
-  bool isActive()
+  bool isInactive()
   {
-    return scheduler.isActive();
+    return scheduler.isInactive();
   }
 };

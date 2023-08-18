@@ -42,6 +42,15 @@ void ProgrammableThing::begin()
   server.addHandler(new FallbackWebHandler());
   server.begin();
   Debug::log("Started");
+
+  Debug::log("Run test program");
+  // engine.runProgram("console.log('Hello there!')", "<eval>");
+
+  // engine.runProgram("console.log('starting at ' + Date.now()); setTimeout(() => console.log('done at ' + Date.now()), 1000)", "<eval>");
+
+  // engine.runProgram("for (let i = 0; i < 10_000; i++) i;", "<eval>");
+
+  engine.runProgram("for (let i = 0; i < 10_000; i++) console.log(i);", "<eval>");
 }
 
 void ProgrammableThing::loop()

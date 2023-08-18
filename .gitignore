@@ -2,6 +2,6 @@
 # Files to ignore from git source control
 #
 
-quickjs
+/quickjs
 dev_libs
 .DS_Store

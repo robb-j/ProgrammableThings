@@ -5,6 +5,8 @@
 #include "Debug.h"
 #include "Program.h"
 
+#define JS_INTERUPT_THRESHOLD_MS 500
+
 typedef void(EngineCallback)(JSRuntime *rt, JSContext *ctx);
 
 class ProgramEngineOptions
@@ -30,9 +32,12 @@ public:
   void loop();
   void end();
 
-  // bool exec(const char *code);
-  // JSValue eval(const char *code);
+  Program *getProgram() { return program; }
 
   JSContext *createContext();
-  Program *run(const char *code, const char *filename);
+
+  Program *runProgram(const char *code, const char *filename);
+  void stopProgram();
 };
+
+int jsInterruptHandler(JSRuntime *rt, void *opaque);

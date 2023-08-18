@@ -24,18 +24,24 @@ class ProgramScheduler
 {
   std::vector<TimerEntry> timers;
   uint32_t idCounter = 0;
+  JSContext *ctx;
 
 public:
+  ProgramScheduler(JSContext *ctx) : ctx(ctx) {}
+  virtual ~ProgramScheduler() {}
+
   TimerExceptionHandler *exceptionHandler;
 
   uint32_t add(JSValue fn, uint32_t nextTick, int32_t interval, JSValue thisValue)
   {
     Debug::log("ProgramScheduler#add");
     auto id = ++idCounter;
+    JS_DupValue(ctx, fn);
+    JS_DupValue(ctx, thisValue);
     timers.push_back(TimerEntry{id, nextTick, interval, fn, thisValue});
     return id;
   }
-  void clear(JSContext *ctx, uint32_t id)
+  void clear(uint32_t id)
   {
     Debug::log("ProgramScheduler#clear");
 
@@ -45,6 +51,7 @@ public:
       if (item->id == id)
       {
         JS_FreeValue(ctx, item->fn);
+        JS_FreeValue(ctx, item->thisValue);
         item = timers.erase(item);
       }
       else
@@ -54,7 +61,7 @@ public:
     }
   }
 
-  void clearAll(JSContext *ctx)
+  void clearAll()
   {
     Debug::log("ProgramScheduler#clearAll");
 
@@ -62,11 +69,12 @@ public:
     while (item != timers.end())
     {
       JS_FreeValue(ctx, item->fn);
+      JS_FreeValue(ctx, item->thisValue);
       item = timers.erase(item);
     }
   }
 
-  void tick(JSContext *ctx, uint32_t now)
+  void tick(uint32_t now)
   {
     // Debug::log("ProgramScheduler#tick");
 
@@ -90,7 +98,8 @@ public:
       {
         exceptionHandler(&result);
       }
-      JS_FreeValue(ctx, result);
+      JS_FreeValue(ctx, item->fn);
+      JS_FreeValue(ctx, item->thisValue);
 
       if (item->interval == -1)
       {
@@ -107,8 +116,8 @@ public:
     }
   }
 
-  bool isActive()
+  bool isInactive()
   {
-    return !timers.empty();
+    return timers.empty();
   }
 };
