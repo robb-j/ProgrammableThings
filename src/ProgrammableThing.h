@@ -21,9 +21,10 @@
 #include "handlers/FallbackWebHandler.h"
 #include "ProgramEngine.h"
 #include "Debug.h"
+#include "CaptivePortal.h"
 
 typedef void(EndpointsCallback)(AsyncWebServer *server);
-typedef void(RuntimeCallback)(JSRuntime *runtime, JSContext *context);
+// typedef void(RuntimeCallback)(JSRuntime *runtime, JSContext *context);
 
 class ProgrammableWiFiOptions
 {
@@ -32,27 +33,60 @@ public:
   const char *passphrase = nullptr;
 };
 
-class ProgrammableThingOptions
-{
-public:
-  fs::FS *fs = nullptr;
-  EndpointsCallback *endpoints = nullptr;
-  ProgramEngineOptions *engine = nullptr;
-  ProgrammableWiFiOptions *wifi = nullptr;
-};
+// class ProgrammableThingOptions
+// {
+// public:
+//   fs::FS *fs = nullptr;
+//   EndpointsCallback *endpoints = nullptr;
+//   ProgramEngineOptions *engine = nullptr;
+//   ProgrammableWiFiOptions *wifi = nullptr;
+// };
+
+// class CaptivePortalOptions
+// {
+// public:
+//   fs::FS *fs;
+//   const char *dir = "/";
+//   const char *ssid = nullptr;
+//   const char *passphrase = nullptr;
+
+//   CaptivePortalOptions(fs::FS *fs, const char *dir = "/", const char *ssid = nullptr, const char *passphrase = nullptr) : fs(fs), dir(dir), ssid(ssid), passphrase(passphrase){}
+// };
+
+// class ProgramEngineOptions
+// {
+// public:
+//   fs::FS *fs = nullptr;
+//   const char *dir = "/";
+//   uint32_t memoryLimit;
+
+//   ProgramEngineOptions(fs::FS *fs, const char *dir = "/") : fs(fs), dir(dir) {}
+// };
 
 class ProgrammableThing : public AsyncWebHandler
 {
 private:
-  ProgrammableThingOptions *options;
+  // ProgrammableThingOptions *options;
 
-  DNSServer dnsServer;
+  
   AsyncWebServer server = AsyncWebServer(80);
-  ProgramEngine engine;
+  ProgramEngine *programEngine;
+  CaptivePortal *captivePortal;
+  EndpointsCallback *customEndpoints;
+
+  // fs::FS *captivePortalFs = nullptr;
+  // const char *captivePortalDir = "/";
+
+  // fs::FS *scriptEngineFs = nullptr;
+  // const char *scriptEngineDir = "/";
 
 public:
-  ProgrammableThing(ProgrammableThingOptions *options) : options(options), engine(options->engine) {}
+  ProgrammableThing() {}
   virtual ~ProgrammableThing() {}
+
+  void setProgramEngine(ProgramEngine *engine) { programEngine = engine; }
+  void setCaptivePortal(CaptivePortal *portal) { captivePortal = portal; }
+  void setEndpoints(EndpointsCallback *endpoints) { customEndpoints = endpoints; }
 
   void begin();
   void loop();

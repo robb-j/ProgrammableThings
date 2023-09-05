@@ -6,14 +6,13 @@ JSContext *ProgramEngine::createContext()
   auto ctx = JS_NewContext(rt);
 
   Debug::log("- setup memory");
-  auto memoryLimit = options->memoryLimit;
   JS_SetMemoryLimit(rt, memoryLimit);
   JS_SetGCThreshold(rt, memoryLimit >> 3);
 
-  if (options->setup != nullptr)
+  if (setupCallback != nullptr)
   {
     Debug::log("- custom setup");
-    options->setup(rt, ctx);
+    setupCallback(rt, ctx);
   }
 
   return ctx;
@@ -25,6 +24,13 @@ void ProgramEngine::begin()
   Debug::log("- create runtime");
   rt = JS_NewRuntime();
   JS_SetInterruptHandler(rt, jsInterruptHandler, this);
+
+  if (fs != nullptr && dir != nullptr && mainScript != nullptr) {
+    // auto file = fs->open(String(dir) + mainScript, FILE_READ);
+    // auto data = file.readString();
+    // runProgram(data.c_str(), mainScript);
+    runScript((String(dir) + mainScript));
+  }
 }
 
 void ProgramEngine::loop()
@@ -53,6 +59,20 @@ void ProgramEngine::end()
   }
 
   JS_FreeRuntime(rt);
+}
+
+Program *ProgramEngine::runScript(const char *filename)
+{
+  auto file = fs->open(filename, FILE_READ);
+  
+  if (!file) {
+    Debug::log(String() + "Failed to open file: " + filename);
+    // TODO: throw an error?
+  }
+
+  auto data = file.readString();
+  Debug::log(data);
+  runProgram(data, filename);
 }
 
 Program *ProgramEngine::runProgram(const char *code, const char *filename)
@@ -95,7 +115,7 @@ int jsInterruptHandler(JSRuntime *rt, void *opaque)
   }
   // else
   // {
-  //   Debug::log("no interript");
+  //   Debug::log("no interrupt");
   //   Debug::log(" now=" + String(millis()));
   //   Debug::log(" start=" + String(engine->getProgram()->getExecutionStart()));
   //   Debug::log(" threshold=" + String(JS_INTERUPT_THRESHOLD_MS));

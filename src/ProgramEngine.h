@@ -1,5 +1,6 @@
 #pragma once
 
+#include <FS.h>
 #include <Arduino.h>
 #include "quickjs/quickjs.h"
 #include "Debug.h"
@@ -9,24 +10,35 @@
 
 typedef void(EngineCallback)(JSRuntime *rt, JSContext *ctx);
 
-class ProgramEngineOptions
-{
-public:
-  uint32_t memoryLimit;
-  EngineCallback *setup;
-};
+// class ProgramEngineOptions
+// {
+// public:
+//   fs::FS *fs = nullptr;
+//   const char *dir = "/";
+//   uint32_t memoryLimit;
+//   EngineCallback *setup;
+// };
 
 class ProgramEngine
 {
 private:
-  ProgramEngineOptions *options;
+  // ProgramEngineOptions *options;
   JSRuntime *rt = nullptr;
+
+  fs::FS *fs;
+  const char *dir;
+  const char *mainScript;
+  uint32_t memoryLimit;
+  EngineCallback *setupCallback;
 
   Program *program = nullptr;
 
 public:
-  ProgramEngine(ProgramEngineOptions *options) : options(options) {}
+  ProgramEngine(fs::FS *fs, const char *dir, const char *mainScript, uint32_t memoryLimit, EngineCallback *setup) : fs(fs), dir(dir), mainScript(mainScript), memoryLimit(memoryLimit), setupCallback(setup) {}
   virtual ~ProgramEngine() {}
+
+  // ProgramEngine(ProgramEngineOptions *options) : options(options) {}
+  // virtual ~ProgramEngine() {}
 
   void begin();
   void loop();
@@ -36,7 +48,11 @@ public:
 
   JSContext *createContext();
 
-  Program *runProgram(const char *code, const char *filename);
+  Program *runScript(String filename) { return runScript(filename.c_str()); }
+  Program *runScript(const char *filename);
+
+  Program *runProgram(String code, String filename) { return runProgram(code.c_str(), filename.c_str()); }
+  Program *runProgram(const char *code, const char *filename = "<eval>");
   void stopProgram();
 };
 

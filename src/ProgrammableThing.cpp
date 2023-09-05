@@ -7,72 +7,61 @@ void ProgrammableThing::begin()
   Debug::log("Applying endpoints");
   endpoints(&server);
 
-  if (options->endpoints != nullptr)
+  if (customEndpoints != nullptr)
   {
     Debug::log("Applying custom endpoints");
-    options->endpoints(&server);
+    customEndpoints(&server);
   }
 
-  if (options->wifi != nullptr)
+  if (captivePortal != nullptr)
   {
-    Debug::log("Starting captive portal...");
-
-    WiFi.mode(WIFI_AP);
-    WiFi.softAP(options->wifi->ssid, options->wifi->passphrase, 1, 0, 8);
-
-    String selfIp = WiFi.softAPIP().toString();
-    Debug::log("WiFi: " + selfIp);
-
-    dnsServer.start(53, "*", WiFi.softAPIP());
-    Debug::log("DNS: " + selfIp + ":53");
-
-    server.addHandler(new CaptiveWebHandler(selfIp));
-    Debug::log("HTTP: " + selfIp + ":80");
+    captivePortal->begin(&server);
   }
 
-  Debug::log("Starting engine");
-  engine.begin();
-
-  if (options->fs != nullptr)
+  if (programEngine != nullptr)
   {
-    Debug::log("Serving SPIFFS directory");
-    server.serveStatic("/", *options->fs, "/").setDefaultFile("index.html").setCacheControl("max-age=600");
+    programEngine->begin();
   }
 
-  server.addHandler(new FallbackWebHandler());
   server.begin();
   Debug::log("Started");
 
-  Debug::log("Run test program");
+  // Debug::log("Run test program");
   // engine.runProgram("console.log('Hello there!')", "<eval>");
 
   // engine.runProgram("console.log('starting at ' + Date.now()); setTimeout(() => console.log('done at ' + Date.now()), 1000)", "<eval>");
 
   // engine.runProgram("for (let i = 0; i < 10_000; i++) i;", "<eval>");
 
-  engine.runProgram("for (let i = 0; i < 10_000; i++) console.log(i);", "<eval>");
+  // programEngine->runProgram("for (let i = 0; i < 10_000; i++) console.log(i);", "<eval>");
 }
 
 void ProgrammableThing::loop()
 {
-  if (options->wifi != nullptr)
+  if (captivePortal != nullptr)
   {
-    dnsServer.processNextRequest();
+    captivePortal->loop();
   }
 
-  engine.loop();
+  if (programEngine != nullptr)
+  {
+    programEngine->loop();
+  }
 }
 
 void ProgrammableThing::end()
 {
-  server.end();
-  engine.end();
-
-  if (options->wifi != nullptr)
+  if (captivePortal != nullptr)
   {
-    dnsServer.stop();
-    WiFi.disconnect(true);
+    captivePortal->end();
   }
+
+  if (programEngine != nullptr)
+  {
+    programEngine->end();
+  }
+
+  server.end();
 }
 
 void ProgrammableThing::endpoints(AsyncWebServer *server)

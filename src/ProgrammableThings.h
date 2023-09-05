@@ -4,7 +4,8 @@
 
 #include "ProgrammableThing.h"
 #include "ProgramEngine.h"
-#include "ProgramEngine.h"
+#include "CaptivePortal.h"
+#include "Debug.h"
 
 #include "handlers/CaptiveWebHandler.h"
 #include "handlers/FallbackWebHandler.h"
