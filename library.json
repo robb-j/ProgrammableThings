@@ -1,0 +1,18 @@
+{
+  "name": "ProgrammableThings",
+  "description": "Reprogrammable stuff on microcontrollers",
+  "keywords": "",
+  "authors": {
+    "name": "Rob Anderson",
+    "maintainer": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/robb-j/ProgrammableThings"
+  },
+  "version": "0.0.1",
+  "license": "MIT",
+  "frameworks": "arduino",
+  "platforms": ["espressif8266", "espressif32"],
+  "dependencies": []
+}

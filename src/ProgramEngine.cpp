@@ -9,11 +9,11 @@ JSContext *ProgramEngine::createContext()
   JS_SetMemoryLimit(rt, memoryLimit);
   JS_SetGCThreshold(rt, memoryLimit >> 3);
 
-  if (setupCallback != nullptr)
-  {
-    Debug::log("- custom setup");
-    setupCallback(rt, ctx);
-  }
+  // if (setupCallback != nullptr)
+  // {
+  //   Debug::log("- custom setup");
+  //   setupCallback(rt, ctx);
+  // }
 
   return ctx;
 }
@@ -72,7 +72,7 @@ Program *ProgramEngine::runScript(const char *filename)
 
   auto data = file.readString();
   Debug::log(data);
-  runProgram(data, filename);
+  return runProgram(data, filename);
 }
 
 Program *ProgramEngine::runProgram(const char *code, const char *filename)

@@ -141,6 +141,7 @@ public:
     Debug::log("- running script");
     executionStart = millis();
     JS_Eval(ctx, source, strlen(source), filename, JS_EVAL_TYPE_MODULE);
+    Debug::log("- done");
   }
   void loop()
   {

@@ -70,9 +70,9 @@ private:
 
   
   AsyncWebServer server = AsyncWebServer(80);
-  ProgramEngine *programEngine;
-  CaptivePortal *captivePortal;
-  EndpointsCallback *customEndpoints;
+  ProgramEngine *programEngine = nullptr;
+  CaptivePortal *captivePortal = nullptr;
+  EndpointsCallback *customEndpoints = nullptr;
 
   // fs::FS *captivePortalFs = nullptr;
   // const char *captivePortalDir = "/";

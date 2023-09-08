@@ -29,12 +29,12 @@ private:
   const char *dir;
   const char *mainScript;
   uint32_t memoryLimit;
-  EngineCallback *setupCallback;
+  // EngineCallback *setupCallback;
 
   Program *program = nullptr;
 
 public:
-  ProgramEngine(fs::FS *fs, const char *dir, const char *mainScript, uint32_t memoryLimit, EngineCallback *setup) : fs(fs), dir(dir), mainScript(mainScript), memoryLimit(memoryLimit), setupCallback(setup) {}
+  ProgramEngine(fs::FS *fs, const char *dir, const char *mainScript, uint32_t memoryLimit) : fs(fs), dir(dir), mainScript(mainScript), memoryLimit(memoryLimit) {}
   virtual ~ProgramEngine() {}
 
   // ProgramEngine(ProgramEngineOptions *options) : options(options) {}

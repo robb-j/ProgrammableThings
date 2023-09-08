@@ -71,11 +71,11 @@
 
 /* define to include Atomics.* operations which depend on the OS
    threads */
-#if !defined(EMSCRIPTEN) || !defined(ESP32)
+#if !defined(EMSCRIPTEN) && !defined(ESP32)
 #define CONFIG_ATOMICS
 #endif
 
-#if !defined(EMSCRIPTEN)
+#if !defined(EMSCRIPTEN) && !defined(CONFIG_STACK_CHECK)
 /* enable stack limitation */
 #define CONFIG_STACK_CHECK
 #endif
