@@ -18,7 +18,7 @@ struct TimerEntry
   JSValue thisValue;
 };
 
-typedef void(TimerExceptionHandler)(JSValue *value);
+typedef void(TimerExceptionHandler)(JSContext *ctx, JSValue v);
 
 class ProgramScheduler
 {
@@ -96,16 +96,15 @@ public:
       auto result = JS_Call(ctx, item->fn, item->thisValue, 0, nullptr);
       if (JS_IsException(result) && exceptionHandler != nullptr)
       {
-        exceptionHandler(&result);
+        exceptionHandler(ctx, result);
       }
-      JS_FreeValue(ctx, item->fn);
-      JS_FreeValue(ctx, item->thisValue);
 
       if (item->interval == -1)
       {
         Debug::log("  disposing");
-        JS_FreeValue(ctx, item->fn);
         item = timers.erase(item);
+        JS_FreeValue(ctx, item->fn);
+        JS_FreeValue(ctx, item->thisValue);
       }
       else
       {

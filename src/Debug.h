@@ -18,26 +18,17 @@ class Debug
 public:
   static void log(const char *message)
   {
-    // #if defined(DEBUG)
+    #if defined(DEBUG)
     Serial.println(message);
-    // #endif
+    #endif
   }
 
   template <typename T>
   static void log(const T &value)
   {
-    // #if defined(DEBUG)
+    #if defined(DEBUG)
     Serial.println(String(value));
-    // #endif
+    #endif
   }
 
-  // void log(const char *message)
-  // {
-  //   Serial.println(message);
-  // }
-
-  // void write(const char *message)
-  // {
-  //   Serial.print(message);
-  // }
 };
