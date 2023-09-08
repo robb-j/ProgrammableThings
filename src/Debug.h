@@ -2,17 +2,6 @@
 
 #include <Arduino.h>
 
-// #ifdef DEBUG
-// #define debug (value) Serial.println(value)
-// #else
-// #define debug (value)()
-// #endif
-
-// void Debug::log(const char *message);
-
-// template <typename T>
-// void Debug::log(const T &value);
-
 class Debug
 {
 public:

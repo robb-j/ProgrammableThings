@@ -1,35 +1,33 @@
 #pragma once
 
-#include <FS.h>
-#include "Debug.h"
+#ifdef ESP32
+#include <WiFi.h>
+#include <AsyncTCP.h>
+#elif defined(ESP8266)
+// ...
+#endif
 
-// class CaptivePortalOptions
-// {
-// public:
-//   fs::FS *fs = nullptr;
-//   const char *dir = "/";
-//   const char *ssid = nullptr;
-//   const char *passphrase = nullptr;
-// };
+#include <DNSServer.h>
+#include <ESPAsyncWebServer.h>
+
+#include "Debug.h"
+#include "handlers/CaptiveWebHandler.h"
 
 class CaptivePortal
 {
 private:
-  fs::FS *fs;
-  const char *dir;
   const char *ssid;
   const char *passphrase;
-  // CaptivePortalOptions *options;
+  AsyncWebServer *server;
 
   DNSServer dnsServer;
+  CaptiveWebHandler handler;
 
 public:
-  CaptivePortal(fs::FS *fs, const char *dir, const char *ssid = nullptr, const char *passphrase = nullptr) : fs(fs), dir(dir), ssid(ssid), passphrase(passphrase) {}
+  CaptivePortal(AsyncWebServer *server, const char *ssid = nullptr, const char *passphrase = nullptr) : ssid(ssid), passphrase(passphrase) {}
   virtual ~CaptivePortal() {}
 
-  // CaptivePortal(CaptivePortalOptions *options) : options(options) {}
-
-  void begin(AsyncWebServer *server)
+  void begin()
   {
     Debug::log("Starting captive portal...");
 
@@ -42,18 +40,8 @@ public:
     dnsServer.start(53, "*", WiFi.softAPIP());
     Debug::log("DNS: " + selfIp + ":53");
 
-    server->addHandler(new CaptiveWebHandler(selfIp));
+    handler.setHostname(selfIp);
     Debug::log("HTTP: " + selfIp + ":80");
-
-    if (fs != nullptr && dir != nullptr)
-    {
-      Debug::log("Serving FS directory");
-      server->serveStatic("/", *fs, "/")
-          .setDefaultFile("index.html")
-          .setCacheControl("max-age=600");
-    }
-
-    server->addHandler(new FallbackWebHandler());
   }
 
   void loop()
@@ -66,4 +54,6 @@ public:
     dnsServer.stop();
     WiFi.disconnect(true);
   }
+
+  AsyncWebHandler* getHandler() { return &handler; }
 };

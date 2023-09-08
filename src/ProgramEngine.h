@@ -1,8 +1,8 @@
 #pragma once
 
 #include <FS.h>
-#include <Arduino.h>
 #include "quickjs/quickjs.h"
+
 #include "Debug.h"
 #include "Program.h"
 

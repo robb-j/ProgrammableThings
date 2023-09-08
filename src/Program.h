@@ -1,6 +1,8 @@
 #pragma once
 
 #include <Arduino.h>
+#include "quickjs/quickjs.h" 
+
 #include "ProgramScheduler.h"
 #include "Debug.h"
 
@@ -21,11 +23,6 @@ public:
   virtual ~Program() {}
 
   uint32_t getExecutionStart() { return executionStart; }
-
-  // void setInterruptCount(uint32_t v) { interruptCount = v; }
-  // uint32_t getInterruptCount() { return interruptCount; }
-  // void incrementInterruptCount() { interruptCount++; }
-  // void resetInterruptCount() { interruptCount = 0; }
 
   void begin()
   {
@@ -48,8 +45,10 @@ public:
                       JS_NewCFunction(ctx, js_set_interval, "setInterval", 2));
     JS_SetPropertyStr(ctx, global, "clearInterval",
                       JS_NewCFunction(ctx, js_clear_interval, "clearInterval", 1));
-
-    
+    JS_SetPropertyStr(ctx, global, "requestAnimationFrame",
+                      JS_NewCFunction(ctx, js_request_animation_frame, "requestAnimationFrame", 1));
+    JS_SetPropertyStr(ctx, global, "cancelAnimationFrame",
+                      JS_NewCFunction(ctx, js_cancel_animation_frame, "cancelAnimationFrame", 1));
 
     Debug::log("- date shim");
     JSValue Date = JS_NewObject(ctx);
@@ -68,7 +67,7 @@ public:
       dumpException(ctx, result);
     }
 
-    // JS_FreeValue(ctx, global);
+    JS_FreeValue(ctx, global);
   }
   void loop()
   {
@@ -107,6 +106,7 @@ private:
     }
     return JS_UNDEFINED;
   }
+
   static JSValue js_set_timeout(JSContext *ctx, JSValueConst jsThis, int argc, JSValueConst *argv)
   {
     if (argc != 2 || !JS_IsFunction(ctx, argv[0]) || !JS_IsNumber(argv[1]))
@@ -119,6 +119,7 @@ private:
     auto id = program->scheduler.add(argv[0], millis() + timeout, -1, jsThis);
     return JS_NewUint32(ctx, id);
   }
+
   static JSValue js_clear_timeout(JSContext *ctx, JSValueConst jsThis, int argc, JSValueConst *argv)
   {
     if (argc != 1 || !JS_IsNumber(argv[0]))
@@ -131,6 +132,7 @@ private:
     program->scheduler.clear(id);
     return JS_UNDEFINED;
   }
+
   static JSValue js_set_interval(JSContext *ctx, JSValueConst jsThis, int argc, JSValueConst *argv) {
     if (argc != 2 || !JS_IsFunction(ctx, argv[0]) || !JS_IsNumber(argv[1]))
     {
@@ -142,19 +144,25 @@ private:
     auto id = program->scheduler.add(argv[0], millis() + interval, interval, jsThis);
     return JS_NewUint32(ctx, id);
   }
+
   static JSValue js_clear_interval(JSContext *ctx, JSValueConst jsThis, int argc, JSValueConst *argv) {
-    if (argc != 1 || !JS_IsNumber(argv[0]))
+    return js_clear_timeout(ctx, jsThis, argc, argv);
+  }
+  
+  static JSValue js_request_animation_frame(JSContext *ctx, JSValueConst jsThis, int argc, JSValueConst *argv) {
+    if (argc != 1 || !JS_IsFunction(ctx, argv[0]))
     {
       return JS_ThrowTypeError(ctx, "ERR_INVALID_ARG_TYPE");
     }
     auto program = static_cast<Program *>(JS_GetContextOpaque(ctx));
-    uint32_t id;
-    JS_ToUint32(ctx, &id, argv[0]);
-    program->scheduler.clear(id);
-    return JS_UNDEFINED;
+    auto id = program->scheduler.add(argv[0], millis(), 0, jsThis);
+    return JS_NewUint32(ctx, id);
   }
-  // static JSValue js_request_animation_frame(JSContext *ctx, JSValueConst jsThis, int argc, JSValueConst *argv) {}
-  // static JSValue js_cancel_animation_frame(JSContext *ctx, JSValueConst jsThis, int argc, JSValueConst *argv) {}
+
+  static JSValue js_cancel_animation_frame(JSContext *ctx, JSValueConst jsThis, int argc, JSValueConst *argv) {
+    return js_clear_timeout(ctx, jsThis, argc, argv);
+  }
+
   static JSValue js_date_now(JSContext *ctx, JSValueConst jsThis, int argc, JSValueConst *argv)
   {
     return JS_NewUint32(ctx, millis());

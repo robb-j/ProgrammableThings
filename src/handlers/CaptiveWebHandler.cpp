@@ -2,7 +2,7 @@
 
 bool CaptiveWebHandler::canHandle(AsyncWebServerRequest *request)
 {
-  return request->host() != this->selfHostname;
+  return this->hostname.length() > 0 && request->host() != this->hostname;
 }
 
 // https://datatracker.ietf.org/doc/html/rfc6585#section-6.1
@@ -13,9 +13,9 @@ void CaptiveWebHandler::handleRequest(AsyncWebServerRequest *request)
     return request->send(503, "text/plain", "Service Unavailable");
   }
   
-  Serial.println("-> redirect " + request->host() + request->url() +  " -> " + selfHostname);
+  Serial.println("-> redirect " + request->host() + request->url() +  " -> " + hostname);
   
-  request->redirect("http://" + this->selfHostname);
+  request->redirect(String("http://") + this->hostname);
   
   // auto location = "http://" + this->selfHostname;
   // AsyncResponseStream *response = request->beginResponseStream("text/html");

@@ -1,4 +1,5 @@
 #pragma once
+
 #include "ESPAsyncWebServer.h"
 
 //
@@ -9,12 +10,15 @@
 class CaptiveWebHandler : public AsyncWebHandler
 {
 private:
-  String selfHostname;
+  String hostname;
 
 public:
-  CaptiveWebHandler(String selfHostname) : selfHostname(selfHostname) {}
+  CaptiveWebHandler() {}
   virtual ~CaptiveWebHandler() {}
 
   bool canHandle(AsyncWebServerRequest *request);
   void handleRequest(AsyncWebServerRequest *request);
+
+  String getHostname() { return hostname; }
+  void setHostname(String value) { hostname = value; }
 };

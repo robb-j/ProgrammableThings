@@ -90,9 +90,6 @@ public:
 
       Debug::log("- running: " + item->id);
 
-      // TODO: set "this" properly?
-      // TODO: store & pass in args too?
-      // TODO: something with the interupt to prevent while(true)
       auto result = JS_Call(ctx, item->fn, item->thisValue, 0, nullptr);
       if (JS_IsException(result) && exceptionHandler != nullptr)
       {
