@@ -18,13 +18,12 @@ class CaptivePortal
 private:
   const char *ssid;
   const char *passphrase;
-  AsyncWebServer *server;
 
   DNSServer dnsServer;
   CaptiveWebHandler handler;
 
 public:
-  CaptivePortal(AsyncWebServer *server, const char *ssid = nullptr, const char *passphrase = nullptr) : ssid(ssid), passphrase(passphrase) {}
+  CaptivePortal(const char *ssid = nullptr, const char *passphrase = nullptr) : ssid(ssid), passphrase(passphrase) {}
   virtual ~CaptivePortal() {}
 
   void begin()
