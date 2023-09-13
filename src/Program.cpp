@@ -168,7 +168,7 @@ void Program::begin()
   Debug::log("- running script");
   executionStart = millis();
   auto result = JS_Eval(ctx, source, strlen(source), filename, JS_EVAL_TYPE_MODULE);
-  Debug::log("- done");
+  Debug::log("- evaluated");
 
   if (JS_IsException(result))
   {
@@ -176,8 +176,16 @@ void Program::begin()
     jsDumpException(ctx, result);
   }
 
+  // Set import meta
+  Debug::log("- setup module metadata");
+  JSModuleDef *mod = static_cast<JSModuleDef *>(JS_VALUE_GET_PTR(result));
+  // setupModuleMeta(ctx, mod, filename, true);
+  // TODO: I think the module needs to be COMPILE_ONLY first, then set meta, then JS_EvalFunction
+
   JS_FreeValue(ctx, global);
   JS_FreeValue(ctx, result);
+
+  Debug::log("- done");
 }
 
 void Program::loop()
@@ -207,19 +215,13 @@ JSModuleDef *Program::addImport(const char *moduleName, const char *source, int 
     return nullptr;
   }
 
+  // Set import meta
   Debug::log("- setup module metadata");
   JSModuleDef *mod = static_cast<JSModuleDef *>(JS_VALUE_GET_PTR(result));
-  
-
-  // Set import meta
-  auto meta = JS_GetImportMeta(ctx, mod);
-  if (JS_IsException(meta))
-  {
-    jsDumpException(ctx, result);
+  auto meta = setupModuleMeta(ctx, mod, moduleName, false);
+  if (!meta) {
     return nullptr;
   }
-  JS_DefinePropertyValueStr(ctx, meta, "url", JS_NewString(ctx, moduleName), JS_PROP_C_W_E);
-  JS_DefinePropertyValueStr(ctx, meta, "main", JS_NewBool(ctx, 0), JS_PROP_C_W_E);
 
   Debug::log("- cleanup");
   JS_FreeValue(ctx, meta);
@@ -227,4 +229,18 @@ JSModuleDef *Program::addImport(const char *moduleName, const char *source, int 
 
   Debug::log("- done");
   return mod;
+}
+
+bool Program::setupModuleMeta(JSContext *ctx, JSModuleDef *mod, const char *url, bool main)
+{
+  auto meta = JS_GetImportMeta(ctx, mod);
+  if (JS_IsException(meta))
+  {
+    jsDumpException(ctx, meta);
+    return false;
+  }
+  JS_DefinePropertyValueStr(ctx, meta, "url", JS_NewString(ctx, url), JS_PROP_C_W_E);
+  JS_DefinePropertyValueStr(ctx, meta, "main", JS_NewBool(ctx, 0), JS_PROP_C_W_E);
+
+  return true;
 }

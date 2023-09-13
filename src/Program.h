@@ -17,6 +17,8 @@ private:
   uint32_t executionStart = 0;
   void *opaque;
 
+  bool setupModuleMeta(JSContext *ctx, JSModuleDef *mod, const char *url, bool main);
+
 public:
   Program(JSRuntime *rt, JSContext *ctx, const char *source, const char *filename);
   virtual ~Program() {}
