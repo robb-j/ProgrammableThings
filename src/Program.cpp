@@ -128,7 +128,7 @@ static void jsDumpException(JSContext *ctx, JSValue v)
 // C++ code
 //
 
-Program::Program(JSRuntime *rt, JSContext *ctx, const char *source, const char *filename) : rt(rt), ctx(ctx), source(source), filename(filename), scheduler(ctx)
+Program::Program(JSRuntime *rt, JSContext *ctx, String source, String filename) : rt(rt), ctx(ctx), source(source), filename(filename), scheduler(ctx)
 {
   scheduler.exceptionHandler = jsDumpException;
 }
@@ -167,7 +167,7 @@ void Program::begin()
 
   Debug::log("- running script");
   executionStart = millis();
-  auto result = JS_Eval(ctx, source, strlen(source), filename, JS_EVAL_TYPE_MODULE);
+  auto result = JS_Eval(ctx, source.c_str(), source.length(), filename.c_str(), JS_EVAL_TYPE_MODULE);
   Debug::log("- evaluated");
 
   if (JS_IsException(result))
@@ -203,10 +203,10 @@ void Program::end()
 }
 
 // https://github.com/bellard/quickjs/blob/2788d71e823b522b178db3b3660ce93689534e6d/quickjs-libc.c#L567
-JSModuleDef *Program::addImport(const char *moduleName, const char *source, int length)
+JSModuleDef *Program::addImport(String moduleName, String source)
 {
   Debug::log(String() + "import module=" + moduleName);
-  auto result = JS_Eval(ctx, source, length, moduleName, JS_EVAL_TYPE_MODULE | JS_EVAL_FLAG_COMPILE_ONLY);
+  auto result = JS_Eval(ctx, source.c_str(), source.length(), moduleName.c_str(), JS_EVAL_TYPE_MODULE | JS_EVAL_FLAG_COMPILE_ONLY);
   Debug::log("- imported");
 
   if (JS_IsException(result))
@@ -231,7 +231,7 @@ JSModuleDef *Program::addImport(const char *moduleName, const char *source, int 
   return mod;
 }
 
-bool Program::setupModuleMeta(JSContext *ctx, JSModuleDef *mod, const char *url, bool main)
+bool Program::setupModuleMeta(JSContext *ctx, JSModuleDef *mod, String url, bool main)
 {
   auto meta = JS_GetImportMeta(ctx, mod);
   if (JS_IsException(meta))
@@ -239,7 +239,7 @@ bool Program::setupModuleMeta(JSContext *ctx, JSModuleDef *mod, const char *url,
     jsDumpException(ctx, meta);
     return false;
   }
-  JS_DefinePropertyValueStr(ctx, meta, "url", JS_NewString(ctx, url), JS_PROP_C_W_E);
+  JS_DefinePropertyValueStr(ctx, meta, "url", JS_NewString(ctx, url.c_str()), JS_PROP_C_W_E);
   JS_DefinePropertyValueStr(ctx, meta, "main", JS_NewBool(ctx, 0), JS_PROP_C_W_E);
 
   return true;

@@ -21,9 +21,32 @@ static JSModuleDef *jsModuleLoader(JSContext *ctx, const char *moduleName, void 
   return static_cast<ProgramEngine *>(opaque)->loadModule(ctx, moduleName);
 }
 
+
 //
 // C++ code
 //
+
+String ProgramEngine::readFile(String filename)
+{
+  auto file = fs->open(filename, FILE_READ);
+
+  if (!file)
+  {
+    Debug::log(String() + "Failed to open file: " + filename);
+    return "";
+  }
+
+  auto data = file.readString();
+  file.close();
+  return data;
+}
+
+void ProgramEngine::writeFile(String filename, String contents)
+{
+  auto file = fs->open(filename, FILE_WRITE);
+  file.write((const uint8_t *)contents.c_str(), contents.length());
+  file.close();
+}
 
 JSContext *ProgramEngine::createContext()
 {
@@ -81,25 +104,20 @@ void ProgramEngine::end()
   JS_FreeRuntime(rt);
 }
 
-String ProgramEngine::loadFile(String filename)
+String ProgramEngine::readScript(String filename)
 {
-  auto file = fs->open(filename, FILE_READ);
+  return readFile(dir + filename);
+}
 
-  if (!file)
-  {
-    Debug::log(String() + "Failed to open file: " + filename);
-    return "";
-  }
-
-  auto data = file.readString();
-  file.close();
-  return data;
+void ProgramEngine::writeScript(String filename, String source)
+{
+  return writeFile(dir + filename, source);
 }
 
 Program *ProgramEngine::runScript(String filename)
 {
-  auto path = String(dir) + filename;
-  auto data = loadFile(path);
+  auto path = dir + filename;
+  auto data = readFile(path);
 
   if (data == "")
   {
@@ -111,13 +129,13 @@ Program *ProgramEngine::runScript(String filename)
 
 Program *ProgramEngine::runProgram(String code, String filename)
 {
-  Debug::log("ProgramEngine#run filename=" + String(filename));
+  Debug::log("ProgramEngine#run filename=" + filename);
   if (program != nullptr)
   {
     this->stopProgram();
   }
   auto context = createContext();
-  program = new Program(rt, context, code.c_str(), filename.c_str());
+  program = new Program(rt, context, code, filename);
   program->setOpaque(opaque);
   program->begin();
   return program;
@@ -159,20 +177,24 @@ int ProgramEngine::handleInterrupt(JSRuntime *rt)
 }
 
 // If needed in the future
-char *ProgramEngine::normaliseModuleName(JSContext *ctx, const char *baseName, const char *moduleName)
+char *ProgramEngine::normaliseModuleName(JSContext *ctx, String baseName, String moduleName)
 {
-  Debug::log(String() + "jsModuleNormaliser base=" + baseName + " module=" + moduleName);
+  Debug::log("jsModuleNormaliser base=" + baseName + " module=" + moduleName);
 
   return nullptr;
 }
 
-JSModuleDef *ProgramEngine::loadModule(JSContext *ctx, const char *moduleName)
+JSModuleDef *ProgramEngine::loadModule(JSContext *ctx, String moduleName)
 {
-  Debug::log(String() + "loadModule module=" + moduleName);
+  Debug::log("loadModule module=" + moduleName);
 
   auto program = static_cast<Program *>(JS_GetContextOpaque(ctx));
 
-  auto contents = loadFile(moduleName);
+  if (!moduleName.startsWith(dir))
+  {
+    Debug::log("Attempted to read unauthorized module: " + moduleName);
+    return nullptr;
+  }
 
-  return program->addImport(moduleName, contents, strlen(contents));
+  return program->addImport(moduleName, readFile(moduleName));
 }

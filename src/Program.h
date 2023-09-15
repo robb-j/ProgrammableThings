@@ -12,15 +12,15 @@ private:
   JSRuntime *rt = nullptr;
   JSContext *ctx = nullptr;
   ProgramScheduler scheduler;
-  const char *source;
-  const char *filename;
+  String source;
+  String filename;
   uint32_t executionStart = 0;
   void *opaque;
 
-  bool setupModuleMeta(JSContext *ctx, JSModuleDef *mod, const char *url, bool main);
+  bool setupModuleMeta(JSContext *ctx, JSModuleDef *mod, String url, bool main);
 
 public:
-  Program(JSRuntime *rt, JSContext *ctx, const char *source, const char *filename);
+  Program(JSRuntime *rt, JSContext *ctx, String source, String filename);
   virtual ~Program() {}
 
   void begin();
@@ -36,5 +36,5 @@ public:
 
   void setOpaque(void *ptr) { opaque = ptr; }
 
-  JSModuleDef *addImport(const char *moduleName, const char *source, int length);
+  JSModuleDef *addImport(String moduleName, String source);
 };

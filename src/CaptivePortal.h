@@ -16,14 +16,14 @@
 class CaptivePortal
 {
 private:
-  const char *ssid;
-  const char *passphrase;
+  String ssid;
+  String passphrase;
 
   DNSServer dnsServer;
   CaptiveWebHandler handler;
 
 public:
-  CaptivePortal(const char *ssid = nullptr, const char *passphrase = nullptr) : ssid(ssid), passphrase(passphrase) {}
+  CaptivePortal(String ssid = "", String passphrase = "") : ssid(ssid), passphrase(passphrase) {}
   virtual ~CaptivePortal() {}
 
   void begin()
