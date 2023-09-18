@@ -114,8 +114,14 @@ void ProgramEngine::writeScript(String filename, String source)
   return writeFile(dir + filename, source);
 }
 
+bool ProgramEngine::scriptExists(String filename)
+{
+  return fs->exists(dir + filename);
+}
+
 Program *ProgramEngine::runScript(String filename)
 {
+  Debug::log("ProgramEngine#runScript filename=" + filename);
   auto path = dir + filename;
   auto data = readFile(path);
 

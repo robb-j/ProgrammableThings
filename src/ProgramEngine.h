@@ -41,6 +41,7 @@ public:
 
   String readScript(String filename);
   void writeScript(String filename, String source);
+  bool scriptExists(String filename);
 
   Program *runScript(String filename);
   Program *runProgram(String code, String filename = "<eval>");
