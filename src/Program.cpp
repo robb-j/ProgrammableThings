@@ -177,8 +177,8 @@ void Program::begin()
   }
 
   // Set import meta
-  Debug::log("- setup module metadata");
-  JSModuleDef *mod = static_cast<JSModuleDef *>(JS_VALUE_GET_PTR(result));
+  // Debug::log("- setup module metadata");
+  // JSModuleDef *mod = static_cast<JSModuleDef *>(JS_VALUE_GET_PTR(result));
   // setupModuleMeta(ctx, mod, filename, true);
   // TODO: I think the module needs to be COMPILE_ONLY first, then set meta, then JS_EvalFunction
 

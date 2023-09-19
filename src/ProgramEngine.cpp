@@ -135,11 +135,8 @@ Program *ProgramEngine::runScript(String filename)
 
 Program *ProgramEngine::runProgram(String code, String filename)
 {
+  this->stopProgram();
   Debug::log("ProgramEngine#run filename=" + filename);
-  if (program != nullptr)
-  {
-    this->stopProgram();
-  }
   auto context = createContext();
   program = new Program(rt, context, code, filename);
   program->setOpaque(opaque);
@@ -150,6 +147,10 @@ Program *ProgramEngine::runProgram(String code, String filename)
 void ProgramEngine::stopProgram()
 {
   Debug::log("ProgramEngine#stopProgram");
+  if (program == nullptr)
+  {
+    return;
+  }
   program->end();
   delete program;
   program = nullptr;
@@ -160,6 +161,7 @@ int ProgramEngine::handleInterrupt(JSRuntime *rt)
   // Shouldn't be running anyway...
   if (getProgram() == nullptr)
   {
+    Debug::log("interrupted JavaScript (no program)");
     return 1;
   }
 
