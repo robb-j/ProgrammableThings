@@ -4,12 +4,10 @@
       "name": "ESP32",
       "includePath": [
         "${workspaceFolder}/src/**",
-        "${workspaceFolder}/dev_libs/**",
-        "${workspaceFolder}/quickjs/**",
         "~/Library/Arduino15/packages/esp32/hardware/esp32/**",
         "~/Documents/Arduino/libraries/**"
       ],
-      "defines": ["ESP32=1", "DEBUG=1"],
+      // "defines": ["PT_TARGET_ESP32=1", "DEBUG=1"],
       "macFrameworkPath": [],
       "compilerPath": "/usr/local/bin/arm-none-eabi-gcc",
       "cStandard": "gnu17",

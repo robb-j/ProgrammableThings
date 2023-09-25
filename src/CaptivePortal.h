@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(PT_TARGET_ESP32) || defined(PT_TARGET_ESP8266)
+
 #ifdef ESP32
 #include <WiFi.h>
 #include <AsyncTCP.h>
@@ -26,33 +28,11 @@ public:
   CaptivePortal(String ssid = "", String passphrase = "") : ssid(ssid), passphrase(passphrase) {}
   virtual ~CaptivePortal() {}
 
-  void begin()
-  {
-    Debug::log("Starting captive portal...");
-
-    WiFi.mode(WIFI_AP);
-    WiFi.softAP(ssid, passphrase, 1, 0, 8);
-
-    String selfIp = WiFi.softAPIP().toString();
-    Debug::log("WiFi: " + selfIp);
-
-    dnsServer.start(53, "*", WiFi.softAPIP());
-    Debug::log("DNS: " + selfIp + ":53");
-
-    handler.setHostname(selfIp);
-    Debug::log("HTTP: " + selfIp + ":80");
-  }
-
-  void loop()
-  {
-    dnsServer.processNextRequest();
-  }
-
-  void end()
-  {
-    dnsServer.stop();
-    WiFi.disconnect(true);
-  }
+  void begin();
+  void loop();
+  void end();
 
   AsyncWebHandler* getHandler() { return &handler; }
 };
+
+#endif

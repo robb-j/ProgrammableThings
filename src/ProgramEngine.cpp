@@ -26,28 +26,6 @@ static JSModuleDef *jsModuleLoader(JSContext *ctx, const char *moduleName, void 
 // C++ code
 //
 
-String ProgramEngine::readFile(String filename)
-{
-  auto file = fs->open(filename, FILE_READ);
-
-  if (!file)
-  {
-    Debug::log(String() + "Failed to open file: " + filename);
-    return "";
-  }
-
-  auto data = file.readString();
-  file.close();
-  return data;
-}
-
-void ProgramEngine::writeFile(String filename, String contents)
-{
-  auto file = fs->open(filename, FILE_WRITE);
-  file.write((const uint8_t *)contents.c_str(), contents.length());
-  file.close();
-}
-
 JSContext *ProgramEngine::createContext()
 {
   Debug::log("ProgramEngine#createContext");
@@ -106,31 +84,30 @@ void ProgramEngine::end()
 
 String ProgramEngine::readScript(String filename)
 {
-  return readFile(dir + filename);
+  return fs->readTextFile(filename);
 }
 
 void ProgramEngine::writeScript(String filename, String source)
 {
-  return writeFile(dir + filename, source);
+  return fs->writeTextFile(filename, source);
 }
 
 bool ProgramEngine::scriptExists(String filename)
 {
-  return fs->exists(dir + filename);
+  return fs->fileExists(filename);
 }
 
 Program *ProgramEngine::runScript(String filename)
 {
   Debug::log("ProgramEngine#runScript filename=" + filename);
-  auto path = dir + filename;
-  auto data = readFile(path);
+  auto data = fs->readTextFile(filename);
 
   if (data == "")
   {
     return nullptr;
   }
 
-  return runProgram(data, path);
+  return runProgram(data, fs->resolvePath(filename));
 }
 
 Program *ProgramEngine::runProgram(String code, String filename)
@@ -198,11 +175,11 @@ JSModuleDef *ProgramEngine::loadModule(JSContext *ctx, String moduleName)
 
   auto program = static_cast<Program *>(JS_GetContextOpaque(ctx));
 
-  if (!moduleName.startsWith(dir))
+  if (!fs->fileExists(moduleName))
   {
     Debug::log("Attempted to read unauthorized module: " + moduleName);
     return nullptr;
   }
 
-  return program->addImport(moduleName, readFile(moduleName));
+  return program->addImport(moduleName, fs->readTextFile(moduleName));
 }

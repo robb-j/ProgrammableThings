@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(PT_TARGET_ESP32) || defined(PT_TARGET_ESP8266)
+
 #include "ESPAsyncWebServer.h"
 
 //
@@ -22,3 +24,6 @@ public:
   String getHostname() { return hostname; }
   void setHostname(String value) { hostname = value; }
 };
+
+
+#endif

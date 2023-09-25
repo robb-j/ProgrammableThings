@@ -1,3 +1,5 @@
+#if defined(PT_TARGET_ESP32) || defined(PT_TARGET_ESP8266)
+
 #include "LogWebHandler.h"
 
 bool LogWebHandler::canHandle(AsyncWebServerRequest *request) {
@@ -6,3 +8,5 @@ bool LogWebHandler::canHandle(AsyncWebServerRequest *request) {
 }
 
 void LogWebHandler::handleRequest(AsyncWebServerRequest *request) {}
+
+#endif

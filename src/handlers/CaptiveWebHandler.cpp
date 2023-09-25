@@ -1,3 +1,5 @@
+#if defined(PT_TARGET_ESP32) || defined(PT_TARGET_ESP8266)
+
 #include "CaptiveWebHandler.h"
 
 bool CaptiveWebHandler::canHandle(AsyncWebServerRequest *request)
@@ -32,3 +34,5 @@ void CaptiveWebHandler::handleRequest(AsyncWebServerRequest *request)
   // );
   // request->send(response);
 }
+
+#endif

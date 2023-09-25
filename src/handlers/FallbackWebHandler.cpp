@@ -1,3 +1,5 @@
+#if defined(PT_TARGET_ESP32) || defined(PT_TARGET_ESP8266)
+
 #include "FallbackWebHandler.h"
 
 bool FallbackWebHandler::canHandle(AsyncWebServerRequest *request)
@@ -20,3 +22,5 @@ void FallbackWebHandler::handleRequest(AsyncWebServerRequest *request)
       "</body></html>");
   request->send(response);
 }
+
+#endif

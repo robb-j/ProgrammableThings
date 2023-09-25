@@ -52,7 +52,7 @@
 
 #define OPTIMIZE 1
 #define SHORT_OPCODES 1
-#if defined(EMSCRIPTEN) || defined(ESP32)
+#if defined(EMSCRIPTEN) || defined(PT_TARGET_ESP32) || defined(PT_TARGET_RP2040)
 #define DIRECT_DISPATCH 0
 #else
 #define DIRECT_DISPATCH 1
@@ -71,7 +71,7 @@
 
 /* define to include Atomics.* operations which depend on the OS
    threads */
-#if !defined(EMSCRIPTEN) && !defined(ESP32)
+#if !defined(EMSCRIPTEN) && !defined(ESP32) && !defined(PT_TARGET_RP2040)
 #define CONFIG_ATOMICS
 #endif
 
@@ -1763,7 +1763,7 @@ static inline size_t js_def_malloc_usable_size(void *ptr)
   return malloc_size(ptr);
 #elif defined(_WIN32)
   return _msize(ptr);
-#elif defined(EMSCRIPTEN) || defined(ESP32)
+#elif defined(EMSCRIPTEN) || defined(ESP32) || defined(PT_TARGET_RP2040)
   return 0;
 #elif defined(__linux__)
   return malloc_usable_size(ptr);
@@ -1839,7 +1839,7 @@ static const JSMallocFunctions def_malloc_funcs = {
     malloc_size,
 #elif defined(_WIN32)
     (size_t(*)(const void *))_msize,
-#elif defined(EMSCRIPTEN) || defined(ESP32)
+#elif defined(EMSCRIPTEN) || defined(ESP32) || defined(PT_TARGET_RP2040)
     NULL,
 #elif defined(__linux__)
     (size_t(*)(const void *))malloc_usable_size,
@@ -46881,7 +46881,7 @@ static JSValue js___date_clock(JSContext *ctx, JSValueConst this_val,
    between UTC time and local time 'd' in minutes */
 static int getTimezoneOffset(int64_t time)
 {
-#if defined(_WIN32) || defined(ESP32)
+#if defined(_WIN32) || defined(ESP32) || defined(PT_TARGET_RP2040)
   /* XXX: TODO */
   return 0;
 #else
