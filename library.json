@@ -10,7 +10,7 @@
     "type": "git",
     "url": "https://github.com/robb-j/ProgrammableThings"
   },
-  "version": "0.0.1",
+  "version": "0.1.0",
   "license": "MIT",
   "frameworks": "arduino",
   "platforms": ["espressif8266", "espressif32"],
