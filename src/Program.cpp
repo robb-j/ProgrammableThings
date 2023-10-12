@@ -80,11 +80,6 @@ static JSValue jsCancelAnimationFrame(JSContext *ctx, JSValueConst jsThis, int a
   return jsClearTimeout(ctx, jsThis, argc, argv);
 }
 
-static JSValue jsDateNow(JSContext *ctx, JSValueConst jsThis, int argc, JSValueConst *argv)
-{
-  return JS_NewUint32(ctx, millis());
-}
-
 static void jsDumpException(JSContext *ctx, JSValue v)
 {
   if (!JS_IsUndefined(v))
@@ -158,12 +153,6 @@ void Program::begin()
                     JS_NewCFunction(ctx, jsRequestAnimationFrame, "requestAnimationFrame", 1));
   JS_SetPropertyStr(ctx, global, "cancelAnimationFrame",
                     JS_NewCFunction(ctx, jsCancelAnimationFrame, "cancelAnimationFrame", 1));
-
-  Debug::log("- date shim");
-  JSValue Date = JS_NewObject(ctx);
-  JS_SetPropertyStr(ctx, global, "Date", Date);
-  JS_SetPropertyStr(ctx, Date, "now",
-                    JS_NewCFunction(ctx, jsDateNow, "now", 0));
 
   Debug::log("- running script");
   executionStart = millis();
