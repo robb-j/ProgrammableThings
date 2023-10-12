@@ -99,9 +99,9 @@ public:
       if (item->interval == -1)
       {
         Debug::log("- disposing");
-        item = timers.erase(item);
         JS_FreeValue(ctx, item->fn);
         JS_FreeValue(ctx, item->thisValue);
+        item = timers.erase(item);
       }
       else
       {
