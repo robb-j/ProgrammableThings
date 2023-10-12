@@ -1,13 +1,13 @@
 #pragma once
 
-#include "CaptivePortal.h"
 #include "Debug.h"
-#include "Program.h"
-#include "ProgramEngine.h"
-#include "ProgramScheduler.h"
+#include "engine/Program.h"
+#include "engine/ProgramEngine.h"
+#include "engine/ProgramScheduler.h"
 
-#include "handlers/CaptiveWebHandler.h"
-#include "handlers/FallbackWebHandler.h"
-#include "handlers/LogWebHandler.h"
+#include "server/CaptivePortal.h"
+#include "server/CaptiveWebHandler.h"
+#include "server/FallbackWebHandler.h"
+#include "server/LogWebHandler.h"
 
 #include "quickjs/quickjs.h"

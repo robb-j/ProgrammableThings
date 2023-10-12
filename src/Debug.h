@@ -2,6 +2,9 @@
 
 #include <Arduino.h>
 
+/*
+  A utility to log debug messages when DEBUG=1 is set
+*/
 class Debug
 {
 public:

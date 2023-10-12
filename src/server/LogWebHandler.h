@@ -2,6 +2,9 @@
 
 #include "ESPAsyncWebServer.h"
 
+/*
+  An `AsyncWebHandler` that logs requests to Serial output
+*/
 class LogWebHandler : public AsyncWebHandler
 {
 public:

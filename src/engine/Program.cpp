@@ -125,7 +125,7 @@ static void jsDumpException(JSContext *ctx, JSValue v)
 
 Program::Program(JSRuntime *rt, JSContext *ctx, String source, String filename) : rt(rt), ctx(ctx), source(source), filename(filename), scheduler(ctx)
 {
-  scheduler.exceptionHandler = jsDumpException;
+  scheduler.setExceptionHandler(jsDumpException);
 }
 
 void Program::begin()
@@ -195,6 +195,7 @@ void Program::end()
 JSModuleDef *Program::addImport(String moduleName, String source)
 {
   Debug::log(String() + "import module=" + moduleName);
+  executionStart = millis();
   auto result = JS_Eval(ctx, source.c_str(), source.length(), moduleName.c_str(), JS_EVAL_TYPE_MODULE | JS_EVAL_FLAG_COMPILE_ONLY);
   Debug::log("- imported");
 

@@ -1,12 +1,10 @@
 #pragma once
 
-#include "ESPAsyncWebServer.h"
+#include <ESPAsyncWebServer.h>
 
-//
-// An AsyncWebHandler that redirects any non-local traffic to itself,
-// triggering the captive portal
-//
-
+/*
+  An `AsyncWebHandler` that redirects any non-local traffic to itself, triggering the captive portal. Used internally by CaptivePortal to create the captive-portal effect.
+*/
 class CaptiveWebHandler : public AsyncWebHandler
 {
 private:
