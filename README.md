@@ -128,7 +128,7 @@ public:
   {
     auto thing = JS_NewObject(ctx);
     JS_SetPropertyStr(ctx, global, "Thing", thing);
-    JS_SetPropertyStr(ctx, thing, "setPixel", JS_NewCFunction(ctx, JavaScript::setPixel, "setPixel", 5));
+    JS_SetPropertyStr(ctx, thing, "turnOnLed", JS_NewCFunction(ctx, JavaScript::turnOnLed, "turnOnLed", 5));
   }
 
   static void turnOnLed(JSContext *ctx, JSValueConst jsThis, int argc, JSValueConst *argv)
