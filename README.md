@@ -55,16 +55,117 @@ This section describes using the JavaScript engine and how to interact with it b
 
 TODO: write more docs on how to do JavaScript stuff
 
-- setup method
-- the opaque pointers
-- memory management
-- "JavaScript" class practice
-- Parsing things from the JavaScript world
-- Preparing things from the C world
+#### setupCallback
+
+The setup method you pass to `ProgramEngine` lets your customise the JavaScript world the scripts will run in. This means you can inject variables, methods and objects that the JavaScript can use to interact with the hardware they are being run on.
+
+**Private by default** — the engine is designed to reveal nothing about the hardware by default, unlike other microcontroller-JavaScript bindings. You might not nessesarily trust the scripts that are being run and you don't want you device turning into a spying device over time. This is especially relevant because a key part of ProgrammableThings is that the scripts on the device are malliable and can change, rather than being baked in when flashing the controller. This means that any interaction with the hardware needs to be specifically designed and programmed to get it working. While more work, this means you can create a cleaner API between the hardware, firmware and scripts.
+
+The setup method is where you create an API between your hardware and the scripts that run on it and you can design that however you like. While `ProgramEngine` is starting a `Program` it will call your `setup` method to customise the JavaScript world which you use to inject your API into it.
+
+At the moment you need to use QuickJS itself to create your API, but we're thinking about easier ways to do this in the future. For example code generation based on documentation-comments.
+
+```cpp
+#include <Arduino.h>
+#include <ProgrammableThings.h>
+
+class JavaScript
+{
+public:
+  static void setup(JSRuntime *rt, JSContext *ctx, JSValue global)
+  {
+    // To inject things, create them and set them onto the "global" object
+    auto thing = JS_NewObject(ctx);
+    JS_SetPropertyStr(ctx, global, "Thing", thing);
+    JS_SetPropertyStr(ctx, thing, "sayHello", JS_NewCFunction(ctx, JavaScript::sayHello, "sayHello", 1));
+  }
+
+  static void sayHello(JSContext *ctx, JSValueConst jsThis, int argc, JSValueConst *argv)
+  {
+    // JS_NewCFunction guarantees that the number of arguments are what you pass to it
+    // But there can be extra varadic arguments too if you need, but they may not be in the array
+    if (!JS_IsString(argv[0]))
+    {
+      return JS_ThrowTypeError(ctx, "ERR_INVALID_ARG_TYPE");
+    }
+    auto name = JS_ToCString(ctx, argv[0]);
+
+    Serial.printLn(String() + "Hello " + name);
+  }
+};
+```
+
+In the JavaScript world you can now call `Thing.sayHello('geoff')` and it will directly call the `sayHello` C method.
+
+#### JavaScript Runtime
+
+Not all of the things that exist in JavaScript are in the runtime, here is a list of things you can use. QuickJS, which powers JavaScript, supports up to the ES2020 version of JavaScript. Additionally ProgrammableThings adds:
+
+- `console.log`
+- `setTimeout`
+- `clearTimeout`
+- `setInterval`
+- `clearInterval`
+- `requestAnimationFrame`
+- `cancelAnimationFrame`
+
+Another nuance is that Date.now() returns whatever time is on the system which probably isn't the number of milliseconds since the epoch.
+
+#### Opaque engine pointers
+
+You will want the JavaScript world to talk to you hardware in some way and these pointers are the way to do that. When you create a ProgramEngine you can call `ProgramEngine#setOpaque` on it and the engine will store your reference for you until you tell it to stop. You can retrieve this pointer again with `ProgramEngine#getOpaque` and cast it back to your value to access and call methods on it.
+
+This pointer is passed on to any Program that is created too so you can access it on the Program via `Program#getOpaque`. The pointer is then in-turn set on QuickJS's `JSContext` object for you to access in js-c method bindings.
+
+```cpp
+#include <ProgrammableThings.h>
+#include "AppContext.h"
+
+class JavaScript
+{
+public:
+  static void setup(JSRuntime *rt, JSContext *ctx, JSValue global)
+  {
+    auto thing = JS_NewObject(ctx);
+    JS_SetPropertyStr(ctx, global, "Thing", thing);
+    JS_SetPropertyStr(ctx, thing, "setPixel", JS_NewCFunction(ctx, JavaScript::setPixel, "setPixel", 5));
+  }
+
+  static void turnOnLed(JSContext *ctx, JSValueConst jsThis, int argc, JSValueConst *argv)
+  {
+    getAppContext(ctx)->pixels.setPixelColor(led, 0, 255, 0);
+  }
+
+private:
+  // A helper method like this is quite useful when you have lots of methods needing to access your Opaque Pointer
+  static AppContext *getAppContext(JSContext *ctx)
+  {
+    return static_cast<Program *>(JS_GetContextOpaque(ctx))
+        ->getOpaque<AppContext>();
+  }
+};
+```
+
+#### Memory management
+
+QuickJS uses reference counting to handle its memory and free things when they are no longer needing. I general if you create something in the C world you will want to free it if you want it to get disposed properly. You do this like this:
+
+```cpp
+auto thing = JS_NewObject(ctx);
+// do something with `thing`
+JS_FreeValue(ctx, thing);
+```
 
 ### HTTP
 
-TODO: docs on HTTP stuff
+There are more plans for HTTP features in the future, but for now there is just a CaptivePortal and you can use an AsyncWebServer yourself. See [examples/CaptivePortal](/examples/captive-portal/) for info on how to do that or the [AsyncWebServer docs](https://github.com/me-no-dev/ESPAsyncWebServer).
+
+## Useful links
+
+- [QuickJS docs](https://bellard.org/quickjs/quickjs.html)
+- [QuickJS repository](https://github.com/bellard/quickjs)
+- [ArduinoJSON](https://arduinojson.org/)
+- [ESPAsyncWebServer repository](https://github.com/)
 
 ## Development
 
