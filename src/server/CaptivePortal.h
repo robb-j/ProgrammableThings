@@ -11,7 +11,7 @@
 #include <ESPAsyncWebServer.h>
 
 #include "Debug.h"
-#include "handlers/CaptiveWebHandler.h"
+#include "server/CaptiveWebHandler.h"
 
 class CaptivePortal
 {
