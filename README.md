@@ -156,6 +156,12 @@ auto thing = JS_NewObject(ctx);
 JS_FreeValue(ctx, thing);
 ```
 
+### Script storage
+
+At the moment, the scripts themselves are implicitly loaded based on the filesystem and directory you pass when creating a `ProgramEngine`. This means you can put JavaScript into that filesystem and run them on the controller. For instance this works with SPIFFS that you can flash onto the device or an SD that you can take out and put on from a computer.
+
+In the future it would be interesting to explore more dynamic ways of getting scripts onto the controller. One option would be to use USB host mode so that the device shows up as a USB storage media on a computer and you can drag and drop files. Another avenue would be a standardised HTTP RESTful API via the CaptivePortal to manage and run the scripts.
+
 ### HTTP
 
 There are more plans for HTTP features in the future, but for now there is just a CaptivePortal and you can use an AsyncWebServer yourself. See [examples/CaptivePortal](/examples/captive-portal/) for info on how to do that or the [AsyncWebServer docs](https://github.com/me-no-dev/ESPAsyncWebServer).
