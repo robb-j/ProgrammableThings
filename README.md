@@ -1,7 +1,6 @@
 # ProgrammableThings
 
-Reconfigurable stuff on microcontrollers. ProgrammableThings introduces a new re-programmable layer to microcontroller firmware to allow dynamic scripting of devices rather than static firmware.
-The idea is to allow different ways of getting JavaScript scripts onto a microcontroller which have controlled access to relevant hardware and peripherals.
+Reconfigurable stuff on microcontrollers. ProgrammableThings introduces a new re-programmable layer to microcontroller firmware to allow dynamic scripting of devices rather than static firmware. The idea is to allow different ways of getting JavaScript scripts onto a microcontroller which have controlled access to relevant hardware and peripherals to male the firmware malliable and potentially more maintainable over time.
 
 This takes the form of a library of modules to enable you to create an API between your hardware and scripting and some other useful tools like creating captive portals.
 
