@@ -1,12 +1,12 @@
 # ProgrammableThings
 
-Reconfigurable stuff on microcontrollers. ProgrammableThings introduces a new re-programmable layer to microcontroller firmware to allow dynamic scripting of devices rather than static firmware. The idea is to allow different ways of getting JavaScript scripts onto a microcontroller which have controlled access to relevant hardware and peripherals to male the firmware malliable and potentially more maintainable over time.
-
-This takes the form of a library of modules to enable you to create an API between your hardware and scripting and some other useful tools like creating captive portals.
+ProgrammableThings is an Arduino library for building IoT devices that can easily be reprogrammed and reconfigured via JavaScript by users. It introduces a new malleable layer allowing dynamic scripting on devices, instead of all functionality that is statically baked into the firmware. The library enables you to quickly create an API between your hardware and the JavaScript scripting layer. We hope this makes IoT more maintainable over time and more resilient to vanishing cloud services.
 
 ## Dependencies
 
-The project has no dependencies but it does bundle [QuickJS](https://bellard.org/quickjs/) for the JavaScript engine and a runtime is created on top of that. The HTTP logic is designed to be used with [me-no-dev/ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWebServer) so you may want to install that to use it but it is not required.
+The project has no dependencies but it does bundle [QuickJS](https://bellard.org/quickjs/) for the JavaScript engine and a runtime is created on top of that. The HTTP logic is designed to be used with [me-no-dev/ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWebServer) so you may want to install that, but it is not required.
+
+ProgrammableThings currently supports ESP32 development boards, we're working on ESP8266 devices and we're interested in the RP2040 chip too.
 
 ## Install
 
@@ -58,11 +58,11 @@ TODO: write more docs on how to do JavaScript stuff
 
 The setup method you pass to `ProgramEngine` lets your customise the JavaScript world the scripts will run in. This means you can inject variables, methods and objects that the JavaScript can use to interact with the hardware they are being run on.
 
-**Private by default** — the engine is designed to reveal nothing about the hardware by default, unlike other microcontroller-JavaScript bindings. You might not nessesarily trust the scripts that are being run and you don't want you device turning into a spying device over time. This is especially relevant because a key part of ProgrammableThings is that the scripts on the device are malliable and can change, rather than being baked in when flashing the controller. This means that any interaction with the hardware needs to be specifically designed and programmed to get it working. While more work, this means you can create a cleaner API between the hardware, firmware and scripts.
+**Private by default** — the engine is designed to reveal nothing about the hardware by default, unlike other microcontroller-JavaScript bindings. You might not necessarily trust the scripts that are being run and you don't want your device turned into a spying device. This is especially relevant because a key part of ProgrammableThings is that the scripts on the device are malleable and can change, rather than being baked in when flashing the controller. This means that any interaction with the hardware needs to be specifically designed and programmed to get it working. While this takes more work, it means you can create a cleaner API between the hardware, firmware and scripts.
 
 The setup method is where you create an API between your hardware and the scripts that run on it and you can design that however you like. While `ProgramEngine` is starting a `Program` it will call your `setup` method to customise the JavaScript world which you use to inject your API into it.
 
-At the moment you need to use QuickJS itself to create your API, but we're thinking about easier ways to do this in the future. For example code generation based on documentation-comments.
+Currently, you need to use QuickJS itself to create your API, but we're thinking about easier ways to do this in the future. For example code generation based on documentation-comments.
 
 ```cpp
 #include <Arduino.h>
@@ -98,7 +98,7 @@ In the JavaScript world you can now call `Thing.sayHello('geoff')` and it will d
 
 #### JavaScript Runtime
 
-Not all of the things that exist in JavaScript are in the runtime, here is a list of things you can use. QuickJS, which powers JavaScript, supports up to the ES2020 version of JavaScript. Additionally ProgrammableThings adds:
+Not all of the things that exist in JavaScript are in the runtime, here is a list of things you can use. QuickJS, which powers JavaScript, supports up to the ES2020 version of JavaScript. Additionally, ProgrammableThings adds:
 
 - `console.log`
 - `setTimeout`
