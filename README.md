@@ -1,6 +1,6 @@
 # ProgrammableThings
 
-ProgrammableThings is an Arduino library for building IoT devices that can easily be reprogrammed and reconfigured via JavaScript by users. It introduces a new malleable layer allowing dynamic scripting on devices, instead of all functionality that is statically baked into the firmware. The library enables you to quickly create an API between your hardware and the JavaScript scripting layer. We hope this makes IoT more maintainable over time and more resilient to vanishing cloud services.
+ProgrammableThings is an Arduino library for building IoT devices that can easily be reprogrammed and reconfigured by users with JavaScript. It introduces a new malleable layer allowing dynamic scripting on devices, instead of all functionality that is statically baked into the firmware. The library enables you to quickly create an API between your hardware and the JavaScript scripting layer. We hope this makes IoT more maintainable over time and more resilient to vanishing cloud services.
 
 ## Dependencies
 
